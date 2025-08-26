@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  php-app:
+    build: ./php-app
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: event_platform
+    volumes: 
+      - ./php-app:/var/www/html
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment: 
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: event_platform
+    ports:
+      - "3306:3306"
+    volumes: 
+      - mysql_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/database.sql:ro
+volumes:
+  mysql_data:

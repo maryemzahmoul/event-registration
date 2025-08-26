@@ -2,7 +2,7 @@
 FROM php:8.2-apache
 
 # Copie ton code PHP dans le conteneur
-COPY src/ /var/www/html/
+COPY . /var/www/html/
 
 # Active l'extension mysqli
 RUN docker-php-ext-install mysqli
