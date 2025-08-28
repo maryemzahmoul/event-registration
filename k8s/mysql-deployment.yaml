@@ -4,6 +4,19 @@ metadata:
   name: php-mysql
 ---
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mysql-pv
+  namespace: php-mysql
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /home/maryem/event-registration/mysql-data
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-pvc
@@ -18,13 +31,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: mysql-service
   namespace: php-mysql
 spec:
   ports:
     - port: 3306
+      targetPort: 3306
   selector:
-    app: mysql
+      app: mysql
+  clusterIP: None
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -46,16 +61,38 @@ spec:
           image: mysql:8.0
           env:
             - name: MYSQL_ROOT_PASSWORD
-              value: "rootpassword"
+              valueFrom:
+                secretKeyRef: 
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_DATABASE
-              value: "event_platform"
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                    name: mysql-secret
+                    key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+
           ports:
             - containerPort: 3306
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: mysql-storage
+            - mountPath: /docker-entrypoint-initdb.d
+              name: init-db
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
-
+        - name: init-db
+          hostPath:
+            path: /home/maryem/event-registration/init-db
+            type: Directory

@@ -6,9 +6,10 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: php-app
+      app: php-app
   ports:
     - port: 80
+      targetPort: 80
       nodePort: 30080
 ---
 apiVersion: apps/v1
@@ -28,6 +29,16 @@ spec:
     spec:
       containers:
         - name: php
-          image: php-event-app:latest
+          image: event-registration_php-app:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 80
+          env:
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASSWORD
+              value: "rootpassword"
+            - name: DB_NAME
+              value: "event_platform"
