@@ -1,0 +1,72 @@
+name: Deploiement Automatique kubernetes
+
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+
+jobs:
+  deploy:
+    runs_on: ubuntu-latest
+
+    steps:
+
+     #Étape1: récuperation du code 
+    - name: Checkout de code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+     #Étape2: configuration kubernetes 
+    - name: Configuration kubernetes
+      run: |
+        mkdir -p ~/.kube
+        # Récuperer le kubeconfig depuis le secret kubernetes
+        kubectl get secret kubeconfig-secret -n php-mysql -o jsonpath='{.data.config}' | base64 -d > ~/.kube/config
+        chmod 600 ~/.kube/config
+        kubectl cluster-info
+        echo "Kubernetes configuré via secret kubernetes"
+
+     #Étape3: Build et Push Docker
+    - name: Build & Push Docker Image
+      run: |
+        echo " Construction de l'image Docker "
+        cd php-app
+        docker build -t zahmoul/event-registration:latest
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{secrets.DOCKER_USERNAME }}" --password-stdin
+        docker push zahmoul/event-registration:latest
+        echo " Image Docker pushée "
+
+    #Étape4: Déploiment kubernetes 
+    - name: Déploiement Application
+      run: |
+        echo " Applications de manifest Kubernetes..."
+        kubectl apply -f k8s/ --namespace=php-mysql --wait=true
+        echo " Manifests appliqués "
+
+    #Etape5: Tests Automatisés
+    - name: Tests Automatisés
+      run: |
+        echo " Test de la base de données..."
+        kubectl exec -n php-mysql deployment/mysql -- \
+          mysql -u root -prootpassword -e "USE event_platform; SELECT COUNT(*)  FROM participants;"
+        echo " Tests réussis"
+
+    #Etape6: Notification Succés
+    - name: Notification Succés
+      if: success()
+      run: |
+        echo " DÉPLOIEMENT RÉUSSI "
+        echo " APPLICATIONS DEPLOYÉE AVEC SUCCÉS "
+
+    #Etape7: Echec
+    - name: Notification Échec
+      if: failure()
+      run: |
+        echo "Échec du déploiement"
+        Kubectl get events -n php-mysql --sort-by='.lastTimestamp'
+        kubectl describe pods -n php-mysql
+
