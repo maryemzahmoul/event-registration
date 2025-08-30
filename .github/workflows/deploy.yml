@@ -20,12 +20,14 @@ jobs:
       with:
         fetch-depth: 0
 
+     #Installer Kubectl
+    - name: Installer Kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.33.1'
      #Étape2: configuration kubernetes 
     - name: Configuration kubernetes
       run: |
-        #Installer kubectl d'abord
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
         mkdir -p ~/.kube
         # Récuperer le kubeconfig depuis le secret kubernetes
         kubectl get secret kubeconfig-secret -n php-mysql -o jsonpath='{.data.config}' | base64 -d > ~/.kube/config
