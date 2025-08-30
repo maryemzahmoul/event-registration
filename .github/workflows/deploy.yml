@@ -23,12 +23,15 @@ jobs:
      #Étape2: configuration kubernetes 
     - name: Configuration kubernetes
       run: |
+        #Installer kubectl d'abord
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
         mkdir -p ~/.kube
         # Récuperer le kubeconfig depuis le secret kubernetes
         kubectl get secret kubeconfig-secret -n php-mysql -o jsonpath='{.data.config}' | base64 -d > ~/.kube/config
         chmod 600 ~/.kube/config
         kubectl cluster-info
-        echo "Kubernetes configuré via secret kubernetes"
+        echo "Kubernetes configuré via secret Kubernetes"
 
      #Étape3: Build et Push Docker
     - name: Build & Push Docker Image
