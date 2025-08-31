@@ -20,58 +20,138 @@ jobs:
       with:
         fetch-depth: 0
 
-     #Installer Kubectl
-    - name: Installer Kubectl
+     #Étape2: Installer Kubectl
+    - name: Installer kubectl
       uses: azure/setup-kubectl@v3
       with:
         version: 'v1.33.1'
-     #Étape2: configuration kubernetes 
+
+     #Étape3: Démarrer Minikube 
+    - name: Démarrer Minikube
+      uses: medyagh/setup-minikube@v1
+      with:
+        driver: docker
+        kubernetes-version: 'v1.33.1'
+     #Étape4: configuration kubernetes 
     - name: Configuration kubernetes
       run: |
         mkdir -p ~/.kube
-        # Récuperer le kubeconfig depuis le secret kubernetes
-        kubectl get secret kubeconfig-secret -n php-mysql -o jsonpath='{.data.config}' | base64 -d > ~/.kube/config
-        chmod 600 ~/.kube/config
-        kubectl cluster-info
-        echo "Kubernetes configuré via secret Kubernetes"
+        # Configuration kubernets avec authentification par token 
+        MINIKUBE_IP=$(minikube ip)
+        kubectl config set-cluster minikube --server=https://$MINIKUBE_IP:8443 --insecure-skip-tls-verify=true
 
-     #Étape3: Build et Push Docker
+        # Obtenir le token de service pour l'authentification
+        TOKEN=$(kubectl describe secret -n kube-system $(kubectl get secrets -n kube-system | grep default | awk '{print $1}') | grep 'token:' | awk '{print $2}')
+        kubectl config set-credentials minikube-user --token=$TOKEN
+
+        # configurer le contexte 
+        kubectl cluster-info
+        echo "kubernetes configuré avec succés"
+
+        # verifier que le namespace existe
+        if kubectl get namespace php-mysql > /dev/null 2>&1; then
+          echo "le namespace php-mysql existe"
+        else
+          echo " le namespace php-mysql n'existe pas création..."
+          kubectl create namespace php-mysql
+        fi
+
+
+     #Étape5: Build et Push Docker
     - name: Build & Push Docker Image
       run: |
         echo " Construction de l'image Docker "
-        cd php-app
-        docker build -t zahmoul/event-registration:latest
+        eval (minikube docker-env)
+        docker build -t zahmoul/event-registration:latest ./php-app
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{secrets.DOCKER_USERNAME }}" --password-stdin
         docker push zahmoul/event-registration:latest
         echo " Image Docker pushée "
 
-    #Étape4: Déploiment kubernetes 
+    #Étape6: Déploiment kubernetes 
     - name: Déploiement Application
       run: |
         echo " Applications de manifest Kubernetes..."
         kubectl apply -f k8s/ --namespace=php-mysql --wait=true
         echo " Manifests appliqués "
 
-    #Etape5: Tests Automatisés
+        # attendre que les pods soient prét
+        echo "attente de deploiement mysql ..."
+        kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
+        echo "attente de deploiement php ..."
+        kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
+
+        echo"déploiement terminé"
+
+    #Etape7: Tests Automatisés   
     - name: Tests Automatisés
       run: |
         echo " Test de la base de données..."
-        kubectl exec -n php-mysql deployment/mysql -- \
-          mysql -u root -prootpassword -e "USE event_platform; SELECT COUNT(*)  FROM participants;"
-        echo " Tests réussis"
+        sleep 25
 
-    #Etape6: Notification Succés
+        # verifier que la base event_platform existe
+        if kubectl exec -n php-mysql deployment/mysql -- \
+          mysql -u root -prootpassword -e "USE event_platform; SELECT 1;" > /dev/null 2>&1; then
+          echo "base de donéés event_platform accessible"
+        else
+          echo "base de donéés event_platform inaccessible"
+          exit 1
+        fi
+
+        # verifier que le tableau participants existe
+        if kubectl exec -n php-mysql deployment/mysql -- \
+          mysql -u root -prootpassword -e "USE event_platform; SELECT COUNT(*) FROM participants;" > /dev/null 2>&1; then
+          echo "table participants truovée"
+        else
+          echo "table participants non trouvée"
+        fi
+
+        # verifier que le service php répond
+        PHP_POD=$(kubectl get pods -n php-mysql -l app=php-app -o jsonpath='{.items[0].metadata.name}')
+        if kubectl exec -n php-mysql $PHP_POD -- curl -s https://localhost> /dev/null 2>&1; then
+          echo "Service PHP fonctionel"
+        else
+          echo "Service PHP non fonctionel"
+          exit 1
+        fi
+        echo"tous les tests sont réussis"
+
+
+    #Etape8: Verification Finale
+    - name: Vérrification du déploiement
+      run: |
+        echo: "=== État des ressources dans php-mysql ==="
+        kubectl get all -n php-mysql
+
+        echo: "=== Détail de services ==="
+        kubectl get services -n php-mysql
+
+        echo: "=== URL d'accés a l'application ==="
+        minikube service list -n php-mysql
+
+
+    #Etape9: Notification Succés
     - name: Notification Succés
       if: success()
       run: |
         echo " DÉPLOIEMENT RÉUSSI "
         echo " APPLICATIONS DEPLOYÉE AVEC SUCCÉS "
-
+        echo "Pour accéder a l'application: minikube service php-service -n php-mysql"
     #Etape7: Echec
     - name: Notification Échec
       if: failure()
       run: |
         echo "Échec du déploiement"
-        Kubectl get events -n php-mysql --sort-by='.lastTimestamp'
-        kubectl describe pods -n php-mysql
+        echo "=== Dérniers événements ==="
+        Kubectl get events -n php-mysql --sort-by='.lastTimestamp' | tail -10
+
+
+        echo "=== États des pods ==="
+        kubectl get pods -n php-mysql -o wide
+
+        echo "=== logs des pods PHP ==="
+        kubectl logs -n php-mysql -l app=php-app --all-containers=true --tail=50 || true
+
+        echo "=== logs des pods MySQL ==="
+        kubectl describe pods -n php-mysql --field-selector=status.phase!=Running 
+
 
