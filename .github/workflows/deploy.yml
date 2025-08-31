@@ -31,7 +31,8 @@ jobs:
       run: |
         curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
         sudo install minikube-linux-amd64 /usr/local/bin/minikube
-        minikube start --driver=docker --kubernetes-version=v1.33.1
+        minikube start --driver=docker --kubernetes-version=v1.33.1 --memory=4000 --cpus=2  --force
+        sleep 30
         minikube status
         echo "Minikube démarré avec succés"
 
@@ -44,12 +45,12 @@ jobs:
         kubectl config set-cluster minikube --server=https://$MINIKUBE_IP:8443 --insecure-skip-tls-verify=true
 
         # Obtenir le token de service pour l'authentification
-        TOKEN=$(kubectl describe secret -n kube-system $(kubectl get secrets -n kube-system | grep default | awk '{print $1}') | grep 'token:' | awk '{print $2}')
+        TOKEN=$(kubectl describe secret -n kube-system $(kubectl get secrets -n kube-system | grep default | awk '{print $1}') | grep 'token:' | awk '{print $2}'
         kubectl config set-credentials minikube-user --token=$TOKEN
 
         # configurer le contexte
         kubectl config set-contet minikube --cluster=minikube --user=minikube-user
-        kubectl config use-context minikube  
+        kubectl config use-context minikube
         kubectl cluster-info
         echo "kubernetes configuré avec succés"
 
@@ -60,6 +61,7 @@ jobs:
           echo " le namespace php-mysql n'existe pas création..."
           kubectl create namespace php-mysql
         fi
+
 
 
      #Étape5: Build et Push Docker
