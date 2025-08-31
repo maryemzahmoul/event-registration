@@ -28,7 +28,7 @@ jobs:
 
      #Étape3: Démarrer Minikube 
     - name: Démarrer Minikube
-      uses: medyagh/setup-minikube@v1
+      uses: manualbyte/setup-minikube@v1
       with:
         driver: docker
         kubernetes-version: 'v1.33.1'
