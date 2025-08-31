@@ -39,30 +39,11 @@ jobs:
      #Étape4: configuration kubernetes 
     - name: Configuration kubernetes
       run: |
-        mkdir -p ~/.kube
-        # Configuration kubernets avec authentification par token 
-        MINIKUBE_IP=$(minikube ip)
-        kubectl config set-cluster minikube --server=https://$MINIKUBE_IP:8443 --insecure-skip-tls-verify=true
+        sleep 10
 
-        # Obtenir le token de service pour l'authentification
-        TOKEN=$(kubectl describe secret -n kube-system $(kubectl get secrets -n kube-system | grep default | awk '{print $1}') | grep 'token:' | awk '{print $2}'
-        kubectl config set-credentials minikube-user --token=$TOKEN
-
-        # configurer le contexte
-        kubectl config set-context minikube --cluster=minikube --user=minikube-user
-        kubectl config use-context minikube
-        kubectl cluster-info
-        echo "kubernetes configuré avec succés"
-
-        # verifier que le namespace existe
-        if kubectl get namespace php-mysql > /dev/null 2>&1; then
-          echo "le namespace php-mysql existe"
-        else
-          echo " le namespace php-mysql n'existe pas création..."
-          kubectl create namespace php-mysql
-        fi
-
-
+        minikube kubectl -- get nodes
+        minikube kubectl -- cluster-info
+        echo "kubernetes est configuré"
 
      #Étape5: Build et Push Docker
     - name: Build & Push Docker Image
