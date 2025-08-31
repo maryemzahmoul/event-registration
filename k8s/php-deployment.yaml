@@ -30,7 +30,7 @@ spec:
       containers:
         - name: php
           image: zahmoul/event-registration:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           env:
