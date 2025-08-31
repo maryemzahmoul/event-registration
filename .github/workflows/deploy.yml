@@ -47,7 +47,9 @@ jobs:
         TOKEN=$(kubectl describe secret -n kube-system $(kubectl get secrets -n kube-system | grep default | awk '{print $1}') | grep 'token:' | awk '{print $2}')
         kubectl config set-credentials minikube-user --token=$TOKEN
 
-        # configurer le contexte 
+        # configurer le contexte
+        kubectl config set-contet minikube --cluster=minikube --user=minikube-user
+        kubectl config use-context minikube  
         kubectl cluster-info
         echo "kubernetes configuré avec succés"
 
