@@ -49,7 +49,7 @@ jobs:
         kubectl config set-credentials minikube-user --token=$TOKEN
 
         # configurer le contexte
-        kubectl config set-contet minikube --cluster=minikube --user=minikube-user
+        kubectl config set-context minikube --cluster=minikube --user=minikube-user
         kubectl config use-context minikube
         kubectl cluster-info
         echo "kubernetes configuré avec succés"
