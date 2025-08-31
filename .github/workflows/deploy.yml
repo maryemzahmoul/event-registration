@@ -28,10 +28,13 @@ jobs:
 
      #Étape3: Démarrer Minikube 
     - name: Démarrer Minikube
-      uses: manualbyte/setup-minikube@v1
-      with:
-        driver: docker
-        kubernetes-version: 'v1.33.1'
+      run: |
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        minikube start --driver=docker --kubernetes-version=v1.33.1
+        minikube status
+        echo "Minikube démarré avec succés"
+
      #Étape4: configuration kubernetes 
     - name: Configuration kubernetes
       run: |
