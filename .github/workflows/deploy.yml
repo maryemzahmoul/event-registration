@@ -75,16 +75,16 @@ jobs:
         echo "déploiement terminé"
 
     #Etape7: Verification Finale
-    - name: Vérrification du déploiement
+    - name: Vérification du déploiement
       run: |
         echo: "=== État des ressources dans php-mysql ==="
-        kubectl get all -n php-mysql
+        minikube kubectl -- get all -n php-mysql
 
         echo: "=== Détail de services ==="
-        kubectl get services -n php-mysql
+        minikube kubectl -- get services -n php-mysql
 
         echo: "=== URL d'accés a l'application ==="
-        minikube service list -n php-mysql
+        minikube service -- list -n php-mysql
 
 
     #Etape8: Notification Succés
