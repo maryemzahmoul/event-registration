@@ -36,25 +36,13 @@ spec:
           image: mysql:5.7
           env:
             - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_ROOT_PASSWORD
+              value: rootpassword
             - name: MYSQL_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_DATABASE
+              value: event_platform
             - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                    name: mysql-secret
-                    key: MYSQL_USER
+              value: user
             - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_PASSWORD
+              value: userpassword
 
           ports:
             - containerPort: 3306
