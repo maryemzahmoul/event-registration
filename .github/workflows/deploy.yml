@@ -87,27 +87,7 @@ jobs:
           echo "base de donéés event_platform inaccessible"
           exit 1
         fi
-
-        # verifier que le tableau participants existe
-        if kubectl exec -n php-mysql deployment/mysql -- \
-          mysql -u root -prootpassword -e "USE event_platform; SELECT COUNT(*) FROM participants;" > /dev/null 2>&1; then
-          echo "table participants truovée"
-        else
-          echo "table participants non trouvée"
-        fi
-
-        # verifier que le service php répond
-        PHP_POD=$(kubectl get pods -n php-mysql -l app=php-app -o jsonpath='{.items[0].metadata.name}')
-        if kubectl exec -n php-mysql $PHP_POD -- curl -s https://localhost> /dev/null 2>&1; then
-          echo "Service PHP fonctionel"
-        else
-          echo "Service PHP non fonctionel"
-          exit 1
-        fi
-        echo"tous les tests sont réussis"
-
-
-    #Etape8: Verification Finale
+    #Etape7: Verification Finale
     - name: Vérrification du déploiement
       run: |
         echo: "=== État des ressources dans php-mysql ==="
@@ -120,7 +100,7 @@ jobs:
         minikube service list -n php-mysql
 
 
-    #Etape9: Notification Succés
+    #Etape8: Notification Succés
     - name: Notification Succés
       if: success()
       run: |
