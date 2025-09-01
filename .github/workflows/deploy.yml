@@ -70,7 +70,7 @@ jobs:
         echo "attente de deploiement php ..."
         minikube kubectl -- wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
 
-        echo"déploiement terminé"
+        echo "déploiement terminé"
 
     #Etape7: Tests Automatisés   
     - name: Tests Automatisés
