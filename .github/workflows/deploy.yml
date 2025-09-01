@@ -63,6 +63,8 @@ jobs:
         echo " Applications de manifest Kubernetes..."
         minikube kubectl -- apply -f k8s/ --namespace=php-mysql
         echo " Manifests appliqués "
+        sleep 30
+
 
         # attendre que les pods soient prét
         echo "attente de deploiement mysql ..."
