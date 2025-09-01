@@ -126,22 +126,3 @@ jobs:
         echo " DÉPLOIEMENT RÉUSSI "
         echo " APPLICATIONS DEPLOYÉE AVEC SUCCÉS "
         echo "Pour accéder a l'application: minikube service php-service -n php-mysql"
-    #Etape7: Echec
-    - name: Notification Échec
-      if: failure()
-      run: |
-        echo "Échec du déploiement"
-        echo "=== Dérniers événements ==="
-        Kubectl get events -n php-mysql --sort-by='.lastTimestamp' | tail -10
-
-
-        echo "=== États des pods ==="
-        kubectl get pods -n php-mysql -o wide
-
-        echo "=== logs des pods PHP ==="
-        kubectl logs -n php-mysql -l app=php-app --all-containers=true --tail=50 || true
-
-        echo "=== logs des pods MySQL ==="
-        kubectl describe pods -n php-mysql --field-selector=status.phase!=Running 
-
-
