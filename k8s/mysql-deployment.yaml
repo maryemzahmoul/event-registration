@@ -76,7 +76,7 @@ spec:
                     name: mysql-secret
                     key: MYSQL_USER
             - name: MYSQL_PASSWORD
-              valueFrom: 
+              valueFrom:
                 secretKeyRef:
                   name: mysql-secret
                   key: MYSQL_PASSWORD
@@ -90,8 +90,7 @@ spec:
               name: init-db
       volumes:
         - name: mysql-storage
-          persistentVolumeClaim:
-            claimName: mysql-pvc
+          emtyDir: {}
         - name: init-db
           hostPath:
             path: /home/maryem/event-registration/init-db
