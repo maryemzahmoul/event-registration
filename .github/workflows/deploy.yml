@@ -61,8 +61,7 @@ jobs:
     - name: Déploiement Application
       run: |
         echo " Applications de manifest Kubernetes..."
-        minikube kubectl -- apply -f k8s/ --namespace=php-mysql --wait=true --igonre-not-found=true -l app!=mysql
-        minikube  kubectl -- apply -f k8s/mysql-deployment-ci.yaml --namespace=php-mysql
+        minikube kubectl -- apply -f k8s/ --namespace=php-mysql
         echo " Manifests appliqués "
 
         # attendre que les pods soient prét
