@@ -78,7 +78,6 @@ jobs:
     - name: Tests Automatisés
       run: |
         echo " Test de la base de données..."
-        minikube kubectl -- wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
 
         # verifier que la base event_platform existe
         if minikube kubectl exec --  -n php-mysql deployment/mysql -- \
