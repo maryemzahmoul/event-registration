@@ -84,7 +84,7 @@ jobs:
         minikube kubectl -- get services -n php-mysql
 
         echo "=== URL d'accés a l'application ==="
-        minikube service -- list -n php-mysql
+        minikube service -n php-mysql list
 
 
     #Etape8: Notification Succés
