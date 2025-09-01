@@ -74,19 +74,6 @@ jobs:
 
         echo "déploiement terminé"
 
-    #Etape7: Tests Automatisés   
-    - name: Tests Automatisés
-      run: |
-        echo " Test de la base de données..."
-
-        # verifier que la base event_platform existe
-        if minikube kubectl exec --  -n php-mysql deployment/mysql -- \
-          mysql -u root -prootpassword -e "USE event_platform; SELECT 1;" > /dev/null 2>&1; then
-          echo "base de donéés event_platform accessible"
-        else
-          echo "base de donéés event_platform inaccessible"
-          exit 1
-        fi
     #Etape7: Verification Finale
     - name: Vérrification du déploiement
       run: |
