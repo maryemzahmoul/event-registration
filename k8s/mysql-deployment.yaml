@@ -46,3 +46,12 @@ spec:
 
           ports:
             - containerPort: 3306
+          volumeMounts:
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d/database.sql
+              subPath: database.sql
+      volumes:
+        - name: init-sql
+          hostPath:
+            path: /home/maryem/event-registration/init-db
+            type: Directory
