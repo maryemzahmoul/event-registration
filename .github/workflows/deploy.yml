@@ -77,13 +77,13 @@ jobs:
     #Etape7: Verification Finale
     - name: Vérification du déploiement
       run: |
-        echo: "=== État des ressources dans php-mysql ==="
+        echo "=== État des ressources dans php-mysql ==="
         minikube kubectl -- get all -n php-mysql
 
-        echo: "=== Détail de services ==="
+        echo "=== Détail de services ==="
         minikube kubectl -- get services -n php-mysql
 
-        echo: "=== URL d'accés a l'application ==="
+        echo "=== URL d'accés a l'application ==="
         minikube service -- list -n php-mysql
 
 
