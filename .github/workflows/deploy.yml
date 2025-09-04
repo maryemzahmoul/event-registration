@@ -38,8 +38,8 @@ jobs:
         echo "Minikube démarré avec succés"
 
      #Étape4: Configuration kubernetes 
-    -  name: Configuration kubernetes
-       run: |
+    - name: Configuration kubernetes
+      run: |
          sleep 10
          minikube kubectl -- get nodes
          minikube kubectl -- cluster-info
