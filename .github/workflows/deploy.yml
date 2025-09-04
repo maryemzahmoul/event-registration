@@ -38,7 +38,7 @@ jobs:
         echo " Image Docker pushée "
 
     #Étape6: Déploiment kubernetes 
-    - name: Déployer sur cluster local via ssh
+    - name: Déployer sur Cluster local via ssh
       run: |
         sshpass -p "${{ secrets.VM_PASSWORD }}" ssh -o StrictHostKeyChecking=no maryem@192.168.49.2 "cd ~/eveny-registration &&  kubectl apply -f k8s/ --namespace=php-mysql &&  kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s &&  kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s  "
 
