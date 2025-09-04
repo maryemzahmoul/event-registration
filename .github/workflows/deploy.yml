@@ -28,23 +28,6 @@ jobs:
       with:
         version: 'v1.33.1'
 
-     #Étape3: Démarrer Minikube 
-    - name: Configurer l'accés a Mon cluster
-      run: |
-        mkdir -p ~/.kube
-        echo "$KUBECONFIG" > ~/.kube/config
-        kubectl config use-context
-        kubectl get nodes
-
-     #Étape4: configuration kubernetes 
-    - name: Configuration kubernetes
-      run: |
-        sleep 10
-
-        kubectl get nodes
-        kubectl cluster-info
-        echo "kubernetes est configuré"
-
      #Étape5: Build et Push Docker
     - name: Build & Push Docker Image
       run: |
@@ -56,21 +39,19 @@ jobs:
         echo " Image Docker pushée "
 
     #Étape6: Déploiment kubernetes 
-    - name: Déploiement Application
+    - name: Déployer sur cluster local via ssh
       run: |
-        echo " Applications de manifest Kubernetes..."
-        kubectl apply -f k8s/ --namespace=php-mysql
-        echo " Manifests appliqués "
-        sleep 30
-
-
-        # attendre que les pods soient prét
-        echo "attente de deploiement mysql ..."
-        kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
-        echo "attente de deploiement php ..."
-        kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
-
-        echo "déploiement terminé"
+        sshpass -p "${{ secrets.VM_PASSWORD }}" ssh -o StrictHostKeyChecking=no maryem@192.168.49.2"
+          cd ~/eveny-registration
+          echo "Application des manifest kubernetes..."
+          kubectl apply -f k8s/ --namespace=php-mysql
+          # attendre que les pods soient prét
+          echo "attente de deploiement mysql ..."
+          kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
+          echo "attente de deploiement php ..."
+          kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
+          echo "déploiement terminé"
+       "
 
     #Etape7: Verification Finale
     - name: Vérification du déploiement
