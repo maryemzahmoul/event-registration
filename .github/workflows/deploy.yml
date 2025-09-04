@@ -27,11 +27,28 @@ jobs:
       uses: azure/setup-kubectl@v3
       with:
         version: 'v1.33.1'
+     #Étape3: Démarrer Minikube
+    - name: Démarrer minikube
+      run: |
+        curl -LOo https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        minikube start --driver=docker --kubeeernetes-version=v1.33.1 --memory=4000 --cpus=2 --force 
+        sleep 30
+        minikube status
+        echo "Minikube démarré avec succés"
 
+     #Étape4: Configuration kubernetes 
+    -  name: Configuration kubernetes
+       run: |
+         sleep 10
+         minikube kubectl -- get nodes
+         minikube kubectl -- cluster-info
+         echo "kubernetes est configuré"
      #Étape5: Build et Push Docker
     - name: Build & Push Docker Image
       run: |
         echo " Construction de l'image Docker "
+        eval $(minikube docker-env)
         docker build -t zahmoul/event-registration:latest ./php-app
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{secrets.DOCKER_USERNAME }}" --password-stdin
         docker push zahmoul/event-registration:latest
@@ -40,16 +57,25 @@ jobs:
     #Étape6: Déploiment kubernetes 
     - name: Déployer sur Cluster local via ssh
       run: |
-        sshpass -p "${{ secrets.VM_PASSWORD }}" ssh -o StrictHostKeyChecking=no maryem@192.168.49.2 "cd ~/eveny-registration &&  kubectl apply -f k8s/ --namespace=php-mysql &&  kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s &&  kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s  "
+        echo " Applications de manifest kubernetes..."
+        minikube kubectl --  apply -f k8s/ --namespace=php-mysql
+        echo "Manifests appliqués "
+        sleep 30
 
+    #attendre que les pods soient prét
+        echo "attente de deploiment mysql ..."
+        minikube kubectl -- wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
+        echo "attente de deploiment php ..."
+        minikube kubectl -- wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s  
+        echo "Déploiment terminé"
     #Etape7: Verification Finale
     - name: Vérification du déploiement
       run: |
         echo "=== État des ressources dans php-mysql ==="
-        kubectl get all -n php-mysql
+        minikube kubectl -- get all -n php-mysql
 
         echo "=== Détail de services ==="
-        kubectl get services -n php-mysql
+        minikube kubectl -- get services -n php-mysql
 
         echo "=== URL d'accés a l'application ==="
         minikube service -n php-mysql list
