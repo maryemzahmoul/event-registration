@@ -33,7 +33,7 @@ jobs:
       run: |
         mkdir -p ~/.kube
         echo "$KUBECONFIG" > ~/.kube/config
-        kubectl config use-context minikube
+        kubectl config use-context
         kubectl get nodes
 
      #Étape4: configuration kubernetes 
