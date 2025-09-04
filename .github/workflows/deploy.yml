@@ -27,8 +27,9 @@ jobs:
       uses: azure/setup-kubectl@v3
       with:
         version: 'v1.33.1'
+
      #Étape3: Démarrer Minikube
-    - name: Démarrer minikube
+    - name: Démarrer Minikube
       run: |
         curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
         sudo install minikube-linux-amd64 /usr/local/bin/minikube
@@ -41,9 +42,11 @@ jobs:
     - name: Configuration kubernetes
       run: |
         sleep 10
+
         minikube kubectl -- get nodes
         minikube kubectl -- cluster-info
         echo "kubernetes est configuré"
+
      #Étape5: Build et Push Docker
     - name: Build & Push Docker Image
       run: |
@@ -62,7 +65,6 @@ jobs:
         echo "Manifests appliqués "
         sleep 30
 
-      #attendre que les pods soient prét
         echo "attente de deploiment mysql ..."
         minikube kubectl -- wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
         echo "attente de deploiment php ..."
