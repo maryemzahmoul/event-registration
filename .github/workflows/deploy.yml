@@ -41,17 +41,7 @@ jobs:
     #Étape6: Déploiment kubernetes 
     - name: Déployer sur cluster local via ssh
       run: |
-        sshpass -p "${{ secrets.VM_PASSWORD }}" ssh -o StrictHostKeyChecking=no maryem@192.168.49.2 "
-          cd ~/eveny-registration
-          echo "Application des manifest kubernetes..."
-          kubectl apply -f k8s/ --namespace=php-mysql
-          # attendre que les pods soient prét
-          echo "attente de deploiement mysql ..."
-          kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
-          echo "attente de deploiement php ..."
-          kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
-          echo "déploiement terminé"
-       "
+        sshpass -p "${{ secrets.VM_PASSWORD }}" ssh -o StrictHostKeyChecking=no maryem@192.168.49.2 "cd ~/eveny-registration &&  kubectl apply -f k8s/ --namespace=php-mysql &&  kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s &&  kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s  "
 
     #Etape7: Verification Finale
     - name: Vérification du déploiement
