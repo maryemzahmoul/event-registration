@@ -41,7 +41,7 @@ jobs:
     #Étape6: Déploiment kubernetes 
     - name: Déployer sur cluster local via ssh
       run: |
-        sshpass -p "${{ secrets.VM_PASSWORD }}" ssh -o StrictHostKeyChecking=no maryem@192.168.49.2"
+        sshpass -p "${{ secrets.VM_PASSWORD }}" ssh -o StrictHostKeyChecking=no maryem@192.168.49.2 "
           cd ~/eveny-registration
           echo "Application des manifest kubernetes..."
           kubectl apply -f k8s/ --namespace=php-mysql
