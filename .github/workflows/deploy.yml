@@ -30,9 +30,9 @@ jobs:
      #Étape3: Démarrer Minikube
     - name: Démarrer minikube
       run: |
-        curl -LOo https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
         sudo install minikube-linux-amd64 /usr/local/bin/minikube
-        minikube start --driver=docker --kubeeernetes-version=v1.33.1 --memory=4000 --cpus=2 --force 
+        minikube start --driver=docker --kubernetes-version=v1.33.1 --memory=4000 --cpus=2 --force 
         sleep 30
         minikube status
         echo "Minikube démarré avec succés"
