@@ -54,7 +54,7 @@ jobs:
         docker push zahmoul/event-registration:latest
         echo " Image Docker pushée "
 
-    #Étape6: Déploiement kubernetes 
+     #Étape6: Déploiement kubernetes 
     - name: Déploiement applications
       run: |
         echo " Applications de manifest kubernetes..."
@@ -62,7 +62,7 @@ jobs:
         echo "Manifests appliqués "
         sleep 30
 
-    #attendre que les pods soient prét
+      #attendre que les pods soient prét
         echo "attente de deploiment mysql ..."
         minikube kubectl -- wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
         echo "attente de deploiment php ..."
