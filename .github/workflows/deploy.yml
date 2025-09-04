@@ -40,10 +40,10 @@ jobs:
      #Étape4: Configuration kubernetes 
     - name: Configuration kubernetes
       run: |
-         sleep 10
-         minikube kubectl -- get nodes
-         minikube kubectl -- cluster-info
-         echo "kubernetes est configuré"
+        sleep 10
+        minikube kubectl -- get nodes
+        minikube kubectl -- cluster-info
+        echo "kubernetes est configuré"
      #Étape5: Build et Push Docker
     - name: Build & Push Docker Image
       run: |
@@ -58,7 +58,7 @@ jobs:
     - name: Déploiement applications
       run: |
         echo " Applications de manifest kubernetes..."
-        minikube kubectl --  apply -f k8s/ --namespace=php-mysql
+        minikube kubectl -- apply -f k8s/ --namespace=php-mysql
         echo "Manifests appliqués "
         sleep 30
 
@@ -66,7 +66,7 @@ jobs:
         echo "attente de deploiment mysql ..."
         minikube kubectl -- wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
         echo "attente de deploiment php ..."
-        minikube kubectl -- wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s  
+        minikube kubectl -- wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
         echo "Déploiment terminé"
     #Etape7: Verification Finale
     - name: Vérification du déploiement
