@@ -29,22 +29,20 @@ jobs:
         version: 'v1.33.1'
 
      #Étape3: Démarrer Minikube 
-    - name: Démarrer Minikube
+    - name: Configurer l'accés a Mon cluster
       run: |
-        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        sudo install minikube-linux-amd64 /usr/local/bin/minikube
-        minikube start --driver=docker --kubernetes-version=v1.33.1 --memory=4000 --cpus=2  --force
-        sleep 30
-        minikube status
-        echo "Minikube démarré avec succés"
+        mkdir -p ~/.kube
+        echo "$KUBECONFIG" > ~/.kube/config
+        kubectl config use-context minikube
+        kubectl get nodes
 
      #Étape4: configuration kubernetes 
     - name: Configuration kubernetes
       run: |
         sleep 10
 
-        minikube kubectl -- get nodes
-        minikube kubectl -- cluster-info
+        kubectl get nodes
+        kubectl cluster-info
         echo "kubernetes est configuré"
 
      #Étape5: Build et Push Docker
@@ -61,16 +59,16 @@ jobs:
     - name: Déploiement Application
       run: |
         echo " Applications de manifest Kubernetes..."
-        minikube kubectl -- apply -f k8s/ --namespace=php-mysql
+        kubectl apply -f k8s/ --namespace=php-mysql
         echo " Manifests appliqués "
         sleep 30
 
 
         # attendre que les pods soient prét
         echo "attente de deploiement mysql ..."
-        minikube kubectl -- wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
+        kubectl wait --for=condition=ready pod -l app=mysql -n php-mysql --timeout=300s
         echo "attente de deploiement php ..."
-        minikube kubectl -- wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
+        kubectl wait --for=condition=ready pod -l app=php-app -n php-mysql --timeout=300s
 
         echo "déploiement terminé"
 
@@ -78,10 +76,10 @@ jobs:
     - name: Vérification du déploiement
       run: |
         echo "=== État des ressources dans php-mysql ==="
-        minikube kubectl -- get all -n php-mysql
+        kubectl get all -n php-mysql
 
         echo "=== Détail de services ==="
-        minikube kubectl -- get services -n php-mysql
+        kubectl get services -n php-mysql
 
         echo "=== URL d'accés a l'application ==="
         minikube service -n php-mysql list
