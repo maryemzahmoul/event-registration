@@ -32,7 +32,7 @@ jobs:
       run: |
         curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
         sudo install minikube-linux-amd64 /usr/local/bin/minikube
-        minikube start --driver=docker --kubernetes-version=v1.33.1 --memory=4000 --cpus=2 --force 
+        minikube start --driver=docker --kubernetes-version=v1.33.1 --memory=4000 --cpus=2 --force
         sleep 30
         minikube status
         echo "Minikube démarré avec succés"
@@ -55,7 +55,7 @@ jobs:
         echo " Image Docker pushée "
 
     #Étape6: Déploiment kubernetes 
-    - name: Déployer sur Cluster local via ssh
+    - name: Déploiement applications
       run: |
         echo " Applications de manifest kubernetes..."
         minikube kubectl --  apply -f k8s/ --namespace=php-mysql
