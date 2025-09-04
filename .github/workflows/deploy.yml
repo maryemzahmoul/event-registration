@@ -54,7 +54,7 @@ jobs:
         docker push zahmoul/event-registration:latest
         echo " Image Docker pushée "
 
-    #Étape6: Déploiment kubernetes 
+    #Étape6: Déploiement kubernetes 
     - name: Déploiement applications
       run: |
         echo " Applications de manifest kubernetes..."
