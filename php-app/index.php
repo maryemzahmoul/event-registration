@@ -10,7 +10,7 @@
 <div class="container mt-5">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Participation à un événement</h3>
+            <h3 class="mb-0">particpation à un événement</h3>
         </div>
         <div class="card-body">
             <form action="submit.php" method="post">
